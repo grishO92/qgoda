@@ -1,2 +1,2 @@
 
-chat app made with svelte
+chat app made with svelte and pocketBase
