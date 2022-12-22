@@ -1,0 +1,71 @@
+:root {
+  font-family: Helvetica;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #666666;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: none;
+}
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+h1 {
+  font-size: 3.2em;
+}
+
+#app {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+button,
+input {
+  margin: 20px;
+  padding: 15px 25px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font-size: 1em;
+  transition-duration: 250ms;
+  background-color: #1a1a1a;
+  color: rgba(255, 255, 255, 0.87);
+}
+
+button {
+  cursor: pointer;
+  background-color: #1a1a1a;
+}
+input {
+  width: 350px;
+  outline: none;
+}
+
+input:focus-visible,
+button:hover {
+  border-color: #646cff;
+}
+
+button:active {
+  background-color: #646cff;
+}
