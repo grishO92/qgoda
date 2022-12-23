@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { fly, fade } from 'svelte/transition';
+  import { fly } from 'svelte/transition';
   import { onMount, onDestroy, afterUpdate } from 'svelte';
   import { currentUser, pb } from './pocketbase';
 
@@ -40,7 +40,7 @@
     unsubscribe?.();
   });
 
-  const scrollDown = async (node) => {
+  const scrollDown = async (node: HTMLElement) => {
     node.scroll({ top: node.scrollHeight, behavior: 'smooth' });
   };
 
@@ -49,16 +49,29 @@
       text: newMessage,
       user: $currentUser.id,
     };
-    if (!data.text) {
-      data.text = '🙉';
-    }
+    //
 
-    if (data.text.length < 160) {
+    if (data.text && data.text.length < 160) {
       await pb.collection('messages').create(data);
     } else {
       return;
     }
+
     newMessage = null;
+  }
+
+  async function sendMonkey(): Promise<void> {
+    try {
+      let data = {
+        text: '🙉',
+        user: $currentUser.id,
+      };
+      if (data.text !== '🙉') return;
+
+      await pb.collection('messages').create(data);
+    } catch (err) {
+      console.log(err.message);
+    }
   }
 
   function deleteMessage(message: { user: string; id: string }): any {
@@ -82,43 +95,40 @@
       {#each messages as message (message.id)}
         {#if $currentUser && $currentUser.id === message.user}
           <div
-            class="msg me"
+            class="msg-me"
             in:fly={{ x: 600, duration: 400 }}
             out:fly={{ x: 600, duration: 400 }}
           >
-            <p class="msg-text">
-              {message.text}
-            </p>
-            <button class="btn" on:click={deleteMessage(message)}>Delete</button
-            >
-            <small class="sentBy">
-              Sent by @{message.expand?.user?.username}
-              <img
-                src={`https://avatars.dicebear.com/api/identicon/${message.expand?.user?.username}.svg`}
-                alt="avatar"
-                class="avatar"
-                width="40px"
-              />
-            </small>
+            <div class="me">
+              <p class="msg-text">
+                {message.text}
+              </p>
+            </div>
+            <div class="avatar">
+              <button class="me-btn" on:click={deleteMessage(message)}
+                >💀</button
+              >
+            </div>
           </div>
         {:else}
           <div
-            class="msg other"
+            class="msg-not-me"
             in:fly={{ x: -200, duration: 300 }}
             out:fly={{ duration: 100 }}
           >
-            <p class="msg-text">
-              {message.text}
-            </p>
-            <small class="sentBy">
-              Sent by @{message.expand?.user?.username}
+            <div class="not-me">
+              <p class="msg-text">
+                {message.text}
+              </p>
+            </div>
+            <div class="avatar">
               <img
                 src={`https://avatars.dicebear.com/api/identicon/${message.expand?.user?.username}.svg`}
                 alt="avatar"
-                class="avatar"
+                class="img"
                 width="40px"
               />
-            </small>
+            </div>
           </div>
         {/if}
       {/each}
@@ -127,15 +137,18 @@
 </div>
 
 {#if $currentUser}
-  <form class="form" on:submit|preventDefault={sendMessage}>
-    <input
-      class="input"
-      type="text"
-      placeholder="if empty.............................you send => 🙉"
-      bind:value={newMessage}
-    />
-    <button class="btn" type="submit">Send</button>
-  </form>
+  <div class="form-wrapper">
+    <button on:click={sendMonkey} class="btn-monkey">🙉</button>
+    <form class="form" on:submit|preventDefault={sendMessage}>
+      <input
+        class="input"
+        type="text"
+        placeholder="Message"
+        bind:value={newMessage}
+      />
+      <button class="btn" type="submit">Send</button>
+    </form>
+  </div>
 {/if}
 
 <style>
@@ -144,62 +157,110 @@
     padding: 10px;
     justify-content: center;
   }
-  .sentBy {
+
+  .form-wrapper {
     display: flex;
-    flex-direction: row;
     align-items: center;
     justify-content: center;
+    margin-top: 20px;
     gap: 10px;
-    margin: 10px;
   }
 
+  .btn-monkey {
+    border-radius: 50%;
+    padding: 10px;
+    font-size: 20px;
+  }
   .form {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    gap: 10px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 12px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #a5a5a5;
+    border-radius: 10px;
+    border: 3px solid transparent;
+    background-clip: padding-box;
+    transition-duration: 200ms;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    border: 0;
+    transition-duration: 200ms;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
   }
 
   .messages {
     align-self: center;
     overflow-x: hidden;
-    width: 500px;
     height: 550px;
+    width: 477px;
     border: 1px solid rgba(255, 255, 255, 0.185);
     border-radius: 8px;
     box-shadow: 1px 10px 50px -30px black;
     margin: 0 auto;
-  }
-
-  .messages::-webkit-scrollbar {
-    width: 8px;
-    height: 10px;
-    border: none;
-  }
-  .messages::-webkit-scrollbar-corner {
-    background-color: transparent;
-  }
-
-  .messages::-webkit-scrollbar-thumb {
-    background-color: rgb(173, 173, 173);
-    border-radius: 8px;
-  }
-  .messages::-webkit-scrollbar-track {
-    background-color: transparent;
-  }
-
-  .msg {
-    border: 1px solid rgba(255, 255, 255, 0.185);
-    margin: 3px 0;
-    border-radius: 8px;
-
+    padding: 20px;
     background-color: rgba(0, 0, 0, 0.678);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
   }
+
+  .msg-me,
+  .msg-not-me {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .me,
+  .not-me {
+    display: flex;
+    padding: 5px;
+    width: max-content;
+
+    max-width: 250px;
+    border-radius: 30px;
+  }
+
+  .msg-me {
+    justify-content: flex-end;
+    flex-direction: row;
+  }
+  .me {
+    background-color: rgb(0, 131, 102);
+  }
+  .me-btn {
+    padding: 5px;
+    border-radius: 50%;
+  }
+
+  .msg-not-me {
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+  }
+  .not-me {
+    background-color: rgb(73, 73, 73);
+  }
+
   .msg-text {
     word-break: break-all;
-    padding: 20px;
+    padding: 10px 10px;
+    font-size: 18px;
   }
 
   .avatar {
-    border-radius: 10px;
+    border-radius: 50%;
+    display: inherit;
+    align-self: center;
+  }
+
+  .img {
+    border-radius: 50%;
+    scale: 0.8;
   }
 </style>

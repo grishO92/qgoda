@@ -21,12 +21,13 @@
     border: 1px solid rgba(255, 255, 255, 0.301);
     box-shadow: 0 0 75px -60px black;
     border-radius: 8px;
-    padding: 50px 10px;
+    padding: 20px 10px;
     flex-direction: column;
     align-items: center;
+    gap: 20px;
   }
 
   .title {
-    margin-bottom: 40px;
+    margin: 20px;
   }
 </style>
